@@ -1,0 +1,23 @@
+<div class="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-4">
+	<header class="bg-white shadow-md rounded-lg mb-4 p-4">
+		<h1 class="text-2xl font-bold text-gray-800">Satellite Tracking Dashboard</h1>
+	</header>
+	<div class="grid grid-cols-12 gap-4">
+		<div class="col-span-3 bg-white rounded-lg shadow-md p-4">
+			<h2 class="text-xl font-semibold text-gray-700 mb-4">Catalog</h2>
+			<div class="mb-4">
+				<app-search></app-search>
+			</div>
+		</div>
+		<div class="col-span-6 bg-white rounded-lg shadow-md p-4">
+			<div class="h-96 bg-blue-50 rounded-lg flex items-center justify-center">
+				<app-cesium-viewer></app-cesium-viewer>
+			</div>
+				<app-infos></app-infos>
+		</div>
+		<div class="col-span-3 bg-white rounded-lg shadow-md p-4">
+			<h2 class="text-xl font-semibold text-gray-700 mb-4">Details</h2>
+			<app-details></app-details>
+		</div>
+	</div>
+</div>
