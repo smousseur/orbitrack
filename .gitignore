@@ -37,3 +37,6 @@ build/
 **/.vscode
 **/.mvn
 **/node_modules
+/orbitrack-api/mvnw
+/orbitrack-api/mvnw.cmd
+/orbitrack-ui/public/cesium/
