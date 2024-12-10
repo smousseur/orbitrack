@@ -7,11 +7,11 @@ import { GeoPosition } from './GeoPosition';
 })
 
 export class PositionService {
-    private apiUrl = 'http://localhost:8080/api/objects/{objectId}/position/stream';
-    private eventSource!: EventSource;
+  private apiUrl = 'http://localhost:8080/api/objects';
+  private eventSource!: EventSource;
 
-    getPositions(objectId: number): Observable<GeoPosition> {
-        this.eventSource = new EventSource(this.apiUrl.replace("{objectId}", objectId.toString()));
+    getPositions(objectId: number, time: string, speedClock: number): Observable<GeoPosition> {
+        this.eventSource = new EventSource(`${this.apiUrl}/${objectId}/position/stream?time=${time}&speed=${speedClock}`);
         return new Observable<GeoPosition>((observer) => {
             this.eventSource.onmessage = (event) => {
             observer.next(JSON.parse(event.data));

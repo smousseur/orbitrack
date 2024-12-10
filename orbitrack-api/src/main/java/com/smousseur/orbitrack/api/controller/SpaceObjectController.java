@@ -5,6 +5,8 @@ import com.smousseur.orbitrack.api.model.dto.SpaceObjectDto;
 import com.smousseur.orbitrack.api.model.dto.SpaceObjectSearchResponse;
 import com.smousseur.orbitrack.api.service.SpaceObjectService;
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -34,10 +36,15 @@ public class SpaceObjectController {
   @GetMapping(
       value = "/api/objects/{objectId}/position/stream",
       produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-  public Flux<GeoPosition> getObjectPositionStream(@PathVariable("objectId") Integer objectId) {
+  public Flux<GeoPosition> getObjectPositionStream(
+      @PathVariable("objectId") Integer objectId,
+      @RequestParam("time") String time,
+      @RequestParam("speed") Double speedClock) {
+    LocalDateTime startFluxTime = LocalDateTime.parse(time);
+    LocalDateTime startFluxRealtime = LocalDateTime.now(ZoneOffset.UTC);
     return Flux.interval(Duration.ofMillis(33))
         .map(tick -> service.findById(objectId))
         .flatMap(Mono::flux)
-        .map(service::getObjectPosition);
+        .map(obj -> service.getObjectPosition(obj, startFluxRealtime, startFluxTime, speedClock));
   }
 }

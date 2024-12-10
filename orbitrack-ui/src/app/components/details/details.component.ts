@@ -29,7 +29,6 @@ export class DetailsComponent {
   }
 
   onClick(): void {
-    console.log(this.details.id);
     this.cesiumRefreshService.triggerRefresh(this.details.id);
   }
 }

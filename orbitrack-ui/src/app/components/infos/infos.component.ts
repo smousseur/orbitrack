@@ -12,8 +12,13 @@ export class InfosComponent implements OnInit {
   infos: Infos = {};
   ngOnInit(): void {
     this.positionRefreshService.refresh$.subscribe(position => {
-      this.infos.latitude = `${position?.latitude.toFixed(2) ?? 0}°`;
-      this.infos.longitude = `${position?.longitude.toFixed(2) ?? 0}°`;
+      const latitude = position?.latitude ?? 0;
+      let latDir = latitude < 0 ? 'South' : 'North';
+      const longitude = position?.longitude ?? 0;
+      let longDir = longitude < 0 ? 'West' : 'East';
+
+      this.infos.latitude = `${Math.abs(latitude).toFixed(2)}° ${latDir}`;
+      this.infos.longitude = `${Math.abs(longitude).toFixed(2)}° ${longDir}`;
       const altitude = (position?.altitude ?? 0) / 1000;
       this.infos.altitude = `${altitude.toFixed(2)} km`;
       this.infos.speed = `${position?.speed.toFixed(2) ?? 0} m/s`

@@ -26,7 +26,7 @@ export class SearchComponent implements OnInit {
         debounceTime(300),
         distinctUntilChanged(),
         switchMap((query) => {
-          if (query) {
+          if (query && typeof query == 'string') {
             return this.searchService.search(query);
           } else {
             return of([]);

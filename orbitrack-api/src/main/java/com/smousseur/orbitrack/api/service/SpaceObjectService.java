@@ -4,7 +4,10 @@ import com.smousseur.orbitrack.api.model.dto.*;
 import com.smousseur.orbitrack.api.model.entity.SpaceObject;
 import com.smousseur.orbitrack.api.repository.SpaceObjectRepository;
 import jakarta.annotation.PostConstruct;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import lombok.RequiredArgsConstructor;
 import org.hipparchus.util.FastMath;
 import org.orekit.bodies.GeodeticPoint;
@@ -57,21 +60,27 @@ public class SpaceObjectService {
     return repository.findByNameContains(name).map(SpaceObjectSearchResponse::new);
   }
 
-  public GeoPosition getObjectPosition(SpaceObjectDto object) {
-    // LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
-    Instant now = Instant.now();
+  public GeoPosition getObjectPosition(
+      SpaceObjectDto object,
+      LocalDateTime startFluxRealtime,
+      LocalDateTime startFluxTime,
+      Double speedClock) {
+    double deltaTime =
+        Duration.between(startFluxRealtime, LocalDateTime.now(ZoneOffset.UTC)).toNanos()
+            * speedClock;
+    Instant currentTime = startFluxTime.plusNanos(Math.round(deltaTime)).toInstant(ZoneOffset.UTC);
     SpaceObjectTelemetry telemetry = object.telemetry();
     GeodeticPoint geodeticPoint =
-        orekitService.computePosition(telemetry.tle1(), telemetry.tle2(), now);
+        orekitService.computePosition(telemetry.tle1(), telemetry.tle2(), currentTime);
     GeoPosition geoPosition =
         GeoPosition.builder()
             .latitude(FastMath.toDegrees(geodeticPoint.getLatitude()))
             .longitude(FastMath.toDegrees(geodeticPoint.getLongitude()))
             .altitude(geodeticPoint.getAltitude())
             .build();
-    Double speed = speedService.computeSpeed(object.id(), geoPosition, now).orElse(0.0);
+    Double speed = speedService.computeSpeed(object.id(), geoPosition, currentTime).orElse(0.0);
     geoPosition.setSpeed(speed);
-    speedService.updatePosition(object.id(), new SpaceObjectPosition(geoPosition, now));
+    speedService.updatePosition(object.id(), new SpaceObjectPosition(geoPosition, currentTime));
     return geoPosition;
   }
 }
