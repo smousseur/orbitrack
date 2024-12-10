@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { createWorldTerrainAsync, Viewer, Cartesian3, Color, JulianDate, ClockViewModel, Clock, ScreenSpaceEventHandler, ScreenSpaceEventType, PolylineCollection } from 'cesium';
+import { createWorldTerrainAsync, Viewer, Cartesian3, Color, JulianDate, ClockViewModel, Clock, ScreenSpaceEventHandler, ScreenSpaceEventType, PolylineCollection, CallbackProperty } from 'cesium';
 import { PositionService } from '../../services/PositionService';
 import { CesiumRefreshService, PositionRefreshService } from '../../services/RefreshService';
 import { GeoPosition } from '../../services/GeoPosition';
@@ -15,8 +15,8 @@ export class CesiumViewerComponent {
   private viewer: any;
   private entity: any;
   private objectId!: number;
-  private polygon: Array<number> = [];
-  private maxPolygonPoints: number = 50000;
+  private polygon: Array<Cartesian3> = [];
+  private maxPolygonPoints: number = 25000;
   constructor(private positionService: PositionService, private cesiumRefreshService: CesiumRefreshService,
     private positionRefreshService: PositionRefreshService) {}
   
@@ -51,21 +51,6 @@ export class CesiumViewerComponent {
         }
         lastClockTime = clock.currentTime;
     });
-    var polylines = new PolylineCollection();
-    polylines.add({
-      show: true,
-      positions: Cartesian3.fromDegreesArray(this.polygon),
-      width: 2,
-      material: Color.RED
-    });
-    this.viewer.primitives.add(polylines);
-    this.viewer.entities.add({
-      polyline: {
-          positions: Cartesian3.fromDegreesArray(this.polygon),
-          width: 2,
-          material: Color.RED
-      }
-    });
   }
 
   ngOnDestroy(): void {
@@ -74,6 +59,7 @@ export class CesiumViewerComponent {
 
   private startPositionStream(objectId: number) : void {
     this.clear();
+    const that = this;
     const currentTime = this.viewer.clock.currentTime;
     let currentIsoTime: string = JulianDate.toIso8601(currentTime);
     currentIsoTime = currentIsoTime.replace(/\.(\d{3})\d*/, '.$1').replace(/Z$/, '');
@@ -86,11 +72,22 @@ export class CesiumViewerComponent {
         console.error('Error fetching objet positions', error);
       }      
     });
+    this.viewer.entities.add({
+      polyline: {
+        positions: new CallbackProperty(() => {
+          return that.polygon;
+      }, false),
+      width: 1,
+      material: Color.BLUE
+    }
+    });
+
   }
 
   private clear(): void {
     this.entity = undefined;
     this.viewer.entities.removeAll();
+    this.polygon = [];
     this.positionService.close();
   }
 
@@ -113,9 +110,9 @@ export class CesiumViewerComponent {
       context.entity.position = Cartesian3.fromDegrees(position.longitude, position.latitude, position.altitude);
     }
     if (this.polygon.length < this.maxPolygonPoints) {
-      this.polygon.push(position.longitude, position.latitude);
+      this.polygon.push(Cartesian3.fromDegrees(position.longitude, position.latitude, position.altitude));
     } else {
-      this.polygon.unshift(position.longitude, position.latitude);
+      this.polygon.unshift(Cartesian3.fromDegrees(position.longitude, position.latitude, position.altitude));
       this.polygon.pop();
     }
     context.positionRefreshService.triggerRefresh(position);
