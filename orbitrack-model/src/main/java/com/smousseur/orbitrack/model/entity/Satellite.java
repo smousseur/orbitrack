@@ -1,5 +1,7 @@
 package com.smousseur.orbitrack.model.entity;
 
+import java.util.Map;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,7 +24,7 @@ public class Satellite {
   @Column("object_id")
   private String objectId;
 
-  private String type;
+  private String kind;
   private String operator;
   private String contractors;
   private String equipment;
@@ -35,4 +37,10 @@ public class Satellite {
 
   @Column("has_image")
   private Boolean hasImage;
+
+  public static Satellite fromRow(Map<String, Object> sqlRow) {
+    return Optional.ofNullable(sqlRow)
+        .map(row -> Satellite.builder().kind((String) row.get("kind")).build())
+        .orElse(null);
+  }
 }

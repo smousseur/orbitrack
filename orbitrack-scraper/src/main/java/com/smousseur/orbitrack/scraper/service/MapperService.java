@@ -10,7 +10,7 @@ public class MapperService {
     return Satellite.builder()
         .orbitalBodyId(satellite.getOrbitalBodyId())
         .objectId(satellite.getCospar())
-        .type(satellite.getType())
+        .kind(satellite.getType())
         .operator(satellite.getOperator())
         .contractors(satellite.getContractors())
         .equipment(satellite.getEquipment())

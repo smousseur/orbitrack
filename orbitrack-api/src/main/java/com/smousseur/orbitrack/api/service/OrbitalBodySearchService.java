@@ -19,8 +19,9 @@ public class OrbitalBodySearchService {
       String name, String type, int page, int size) {
     int offset = page * size;
 
-    Flux<OrbitalBodySearchResponse> search = repository.search(name, type, size, offset);
-    Mono<Integer> count = repository.count("%" + name + "%", type);
+    String likeName = name != null ? "%" + name + "%" : null;
+    Flux<OrbitalBodySearchResponse> search = repository.search(likeName, type, size, offset);
+    Mono<Long> count = repository.count(likeName, type);
 
     return count
         .zipWith(search.collectList())
