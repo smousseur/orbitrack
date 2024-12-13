@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { createWorldTerrainAsync, Viewer, Cartesian3, Color, JulianDate, ClockViewModel, Clock, ScreenSpaceEventHandler, ScreenSpaceEventType, PolylineCollection, CallbackProperty } from 'cesium';
+import { createWorldTerrainAsync, Viewer, Cartesian3, Color, JulianDate, ClockViewModel, Clock, ScreenSpaceEventHandler, ScreenSpaceEventType, PolylineCollection, CallbackProperty, Entity, Ion } from 'cesium';
 import { PositionService } from '../../services/PositionService';
 import { CesiumRefreshService, PositionRefreshService } from '../../services/RefreshService';
 import { GeoPosition } from '../../services/GeoPosition';
-
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-cesium-viewer',
@@ -12,16 +12,17 @@ import { GeoPosition } from '../../services/GeoPosition';
   host: {'class': 'cesium-viewer'}
 })
 export class CesiumViewerComponent {
-  private viewer: any;
+  private viewer!: Viewer;
   private entity: any;
   private objectId!: number;
-  private polygon: Array<Cartesian3> = [];
-  private maxPolygonPoints: number = 25000;
+  private trajectory: Array<Cartesian3> = [];
+  private maxTrajectoryPoints: number = 25000;
   constructor(private positionService: PositionService, private cesiumRefreshService: CesiumRefreshService,
     private positionRefreshService: PositionRefreshService) {}
-  
+
 
   async ngAfterViewInit() {
+    Ion.defaultAccessToken = environment.cesiumKey;
     this.viewer = new Viewer('cesiumContainer', {
       terrainProvider: await createWorldTerrainAsync(),
     });
@@ -70,28 +71,27 @@ export class CesiumViewerComponent {
       },
       error: (error) => {
         console.error('Error fetching objet positions', error);
-      }      
+      }
     });
     this.viewer.entities.add({
       polyline: {
         positions: new CallbackProperty(() => {
-          return that.polygon;
-      }, false),
+          return that.trajectory;
+        }, false),
       width: 1,
       material: Color.BLUE
-    }
+      }
     });
-
   }
 
   private clear(): void {
     this.entity = undefined;
     this.viewer.entities.removeAll();
-    this.polygon = [];
+    this.trajectory = [];
     this.positionService.close();
   }
 
-  private addObjectPoint(longitude: number, latitude: number, altitude: number): void {
+  private addObjectPoint(longitude: number, latitude: number, altitude: number): Entity {
     return this.viewer.entities.add({
       position: Cartesian3.fromDegrees(longitude, latitude, altitude),
       point: {
@@ -101,7 +101,7 @@ export class CesiumViewerComponent {
         outlineWidth: 2,
       },
     });
-  }  
+  }
 
   private updateSatellitePosition(position: GeoPosition, context: CesiumViewerComponent): void {
     if (typeof context.entity === 'undefined') {
@@ -109,11 +109,11 @@ export class CesiumViewerComponent {
     } else {
       context.entity.position = Cartesian3.fromDegrees(position.longitude, position.latitude, position.altitude);
     }
-    if (this.polygon.length < this.maxPolygonPoints) {
-      this.polygon.push(Cartesian3.fromDegrees(position.longitude, position.latitude, position.altitude));
+    if (this.trajectory.length < this.maxTrajectoryPoints) {
+      this.trajectory.push(Cartesian3.fromDegrees(position.longitude, position.latitude, position.altitude));
     } else {
-      this.polygon.unshift(Cartesian3.fromDegrees(position.longitude, position.latitude, position.altitude));
-      this.polygon.pop();
+      this.trajectory.unshift(Cartesian3.fromDegrees(position.longitude, position.latitude, position.altitude));
+      this.trajectory.pop();
     }
     context.positionRefreshService.triggerRefresh(position);
   }

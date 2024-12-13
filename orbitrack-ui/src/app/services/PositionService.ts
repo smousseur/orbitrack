@@ -16,11 +16,11 @@ export class PositionService {
             this.eventSource.onmessage = (event) => {
             observer.next(JSON.parse(event.data));
           };
-    
+
           this.eventSource.onerror = (error) => {
             observer.error(error);
           };
-    
+
           this.eventSource.onopen = () => {
             console.log('Stream opened');
           };
