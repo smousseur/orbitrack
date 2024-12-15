@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ObjectRefreshService, CesiumRefreshService, PositionRefreshService } from '../../services/RefreshService';
-import { ObjectDetails, SearchService } from '../../services/SearchService';
+import { ObjectDetails, SimpleSearchService } from '../../services/SimpleSearchService';
 
 @Component({
   selector: 'app-details',
@@ -11,7 +11,7 @@ import { ObjectDetails, SearchService } from '../../services/SearchService';
 export class DetailsComponent {
   details: ObjectDetails = {};
 
-  constructor(private searchService: SearchService, private objectRefreshService: ObjectRefreshService, 
+  constructor(private searchService: SimpleSearchService, private objectRefreshService: ObjectRefreshService, 
     private cesiumRefreshService: CesiumRefreshService) {}
 
   ngOnInit(): void {

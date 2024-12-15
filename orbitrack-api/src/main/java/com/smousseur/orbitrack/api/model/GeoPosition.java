@@ -1,4 +1,4 @@
-package com.smousseur.orbitrack.model;
+package com.smousseur.orbitrack.api.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

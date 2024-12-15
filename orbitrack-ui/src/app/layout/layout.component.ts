@@ -3,10 +3,11 @@ import { CesiumViewerComponent } from "../components/cesium-viewer/cesium-viewer
 import { SearchComponent } from "../components/search/search.component";
 import { DetailsComponent } from "../components/details/details.component";
 import { InfosComponent } from '../components/infos/infos.component';
+import { SearchTableComponent } from "../components/search-table/search-table.component";
 
 @Component({
   selector: 'app-layout',
-  imports: [CesiumViewerComponent, SearchComponent, DetailsComponent, InfosComponent],
+  imports: [CesiumViewerComponent, SearchTableComponent, DetailsComponent, InfosComponent, SearchTableComponent],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss'
 })

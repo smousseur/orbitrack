@@ -3,7 +3,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { SearchResult, SearchService } from '../../services/SearchService';
+import { SearchResult, SimpleSearchService } from '../../services/SimpleSearchService';
 import { debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ObjectRefreshService } from '../../services/RefreshService';
@@ -18,7 +18,7 @@ export class SearchComponent implements OnInit {
   searchControl = new FormControl('');
   filteredOptions: {objectId: string; label: string}[] = [];
 
-  constructor(private searchService: SearchService, private refreshService: ObjectRefreshService) {}
+  constructor(private searchService: SimpleSearchService, private refreshService: ObjectRefreshService) {}
 
   ngOnInit(): void {
     this.searchControl.valueChanges

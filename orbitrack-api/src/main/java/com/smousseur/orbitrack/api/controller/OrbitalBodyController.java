@@ -1,17 +1,12 @@
 package com.smousseur.orbitrack.api.controller;
 
+import com.smousseur.orbitrack.api.model.*;
 import com.smousseur.orbitrack.api.service.OrbitalBodySearchService;
 import com.smousseur.orbitrack.api.service.OrbitalBodyService;
-import com.smousseur.orbitrack.model.GeoPosition;
-import com.smousseur.orbitrack.model.OrbitalBodyDto;
-import com.smousseur.orbitrack.model.OrbitalBodySearchFastResponse;
-import com.smousseur.orbitrack.model.OrbitalBodySearchResponse;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -21,7 +16,6 @@ import reactor.core.publisher.Mono;
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
 public class OrbitalBodyController {
-  private static final int MAX_SEARCH_ITEMS = 10;
   private final OrbitalBodyService service;
   private final OrbitalBodySearchService searchService;
 
@@ -31,19 +25,22 @@ public class OrbitalBodyController {
   }
 
   @GetMapping("/api/objects/search")
-  public Mono<Page<OrbitalBodySearchResponse>> search(
+  public Mono<PageResult<OrbitalBodySearchResponse>> search(
+      @RequestParam(value = "noradId", required = false) Integer noradId,
       @RequestParam(value = "name", required = false) String name,
+      @RequestParam(value = "cosparId", required = false) String cosparId,
       @RequestParam(value = "type", required = false) String type,
+      @RequestParam(value = "countryCode", required = false) String countryCode,
       @RequestParam(value = "page", defaultValue = "0") int page,
       @RequestParam(value = "size", defaultValue = "10") int size) {
-    return searchService.search(name, type, page, size);
+    return searchService.search(noradId, name, cosparId, type, countryCode, page, size);
   }
 
   @GetMapping("/api/objects")
   public Flux<OrbitalBodySearchFastResponse> findByName(
-      @RequestParam("name") String name, @RequestParam("limit") Optional<Integer> limit) {
-    int fluxLimit = limit.orElse(MAX_SEARCH_ITEMS);
-    return service.findByName(name).take(fluxLimit);
+      @RequestParam("name") String name,
+      @RequestParam(value = "limit", defaultValue = "10") Integer limit) {
+    return service.findByName(name).take(limit);
   }
 
   @GetMapping(

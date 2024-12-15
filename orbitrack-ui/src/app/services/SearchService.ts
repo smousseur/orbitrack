@@ -1,39 +1,40 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+
+export interface Object {
+    id: number;
+    noradId: number;    
+    name: string;
+    cosparId: string;    
+    type: string;
+    size: string;
+    countryCode: string;
+    launchDate: string;
+}
+
+export interface PageResponse<T> {
+    items: T[];
+    total: number;
+}
 
 @Injectable({
     providedIn: 'root',
 })
 export class SearchService {
-    private searchUrl = 'http://localhost:8080/api/objects';
+    private searchUrl = 'http://localhost:8080/api/objects/search';
 
     constructor(private http: HttpClient) {}
 
-    search(query: string): Observable<{objectId: string, label:string}[]> {
-        return this.http.get<{objectId: string, label:string}[]>(`${this.searchUrl}?name=${query}`);
+    search(query: string = '', page: number = 0, size: number = 10) :  Observable<PageResponse<Object>> {
+        let params = new HttpParams()
+            .set('name', query)
+            .set('page', page)
+            .set('size', size);
+ //       if (noradId) {
+ //           params = params.set('noradId', noradId);
+ //       }
+
+        return this.http.get<PageResponse<Object>>(this.searchUrl, { params });
     }
-
-    getDetails(objectId: number): Observable<ObjectDetails> {
-        return this.http.get<ObjectDetails>(`${this.searchUrl}/${objectId}`);
-    }
-}
-
-export interface SearchResult {
-    id: string;
-    label: string;
-}
-
-interface Telemetry {
-    period?: number;
-    eccentricity?: number;
-    inclination?: number;
-
-}
-export interface ObjectDetails {
-    id?: number;
-    name?: string;
-    noradId?: number;
-    type?: string;
-    telemetry?: Telemetry;
 }

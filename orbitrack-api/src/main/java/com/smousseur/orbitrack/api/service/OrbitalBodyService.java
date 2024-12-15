@@ -1,11 +1,11 @@
 package com.smousseur.orbitrack.api.service;
 
+import com.smousseur.orbitrack.api.model.GeoPosition;
+import com.smousseur.orbitrack.api.model.OrbitalBodyDto;
+import com.smousseur.orbitrack.api.model.OrbitalBodyPosition;
+import com.smousseur.orbitrack.api.model.OrbitalBodySearchFastResponse;
+import com.smousseur.orbitrack.api.model.OrbitalBodyTelemetry;
 import com.smousseur.orbitrack.api.repository.OrbitalBodyRepository;
-import com.smousseur.orbitrack.model.GeoPosition;
-import com.smousseur.orbitrack.model.OrbitalBodyDto;
-import com.smousseur.orbitrack.model.OrbitalBodyPosition;
-import com.smousseur.orbitrack.model.OrbitalBodySearchFastResponse;
-import com.smousseur.orbitrack.model.OrbitalBodyTelemetry;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;

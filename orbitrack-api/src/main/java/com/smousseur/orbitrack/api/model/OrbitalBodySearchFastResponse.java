@@ -1,4 +1,4 @@
-package com.smousseur.orbitrack.model;
+package com.smousseur.orbitrack.api.model;
 
 import com.smousseur.orbitrack.model.entity.OrbitalBody;
 import lombok.Data;

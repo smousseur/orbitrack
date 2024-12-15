@@ -1,7 +1,7 @@
 package com.smousseur.orbitrack.api.service;
 
-import com.smousseur.orbitrack.model.GeoPosition;
-import com.smousseur.orbitrack.model.OrbitalBodyPosition;
+import com.smousseur.orbitrack.api.model.GeoPosition;
+import com.smousseur.orbitrack.api.model.OrbitalBodyPosition;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;

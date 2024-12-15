@@ -1,0 +1,36 @@
+<div class="mat-elevation-z8">
+        <mat-form-field>
+        <mat-label>Search</mat-label>
+        <input matInput (keyup.enter)="search($event)" placeholder="Search name">
+        </mat-form-field>
+    
+    <table mat-table [dataSource]="dataSource">
+    
+        <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef> Name </th>
+            <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="cosparId">
+            <th mat-header-cell *matHeaderCellDef> Cospar ID </th>
+            <td mat-cell *matCellDef="let element"> {{element.cosparId}} </td>
+        </ng-container>
+    
+        <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef> Type </th>
+            <td mat-cell *matCellDef="let element"> {{element.objectType}} </td>
+        </ng-container>
+    
+        <ng-container matColumnDef="launchDate">
+            <th mat-header-cell *matHeaderCellDef> Launch Date </th>
+            <td mat-cell *matCellDef="let element"> {{element.launchDate}} </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="viewObject(row)"></tr>
+    </table>
+    <mat-paginator [pageSizeOptions]="[5, 10, 20]"
+        showFirstLastButtons
+        [length]="totalItems" [pageSize]="pageSize"  (page)="loadPage($event)">
+    </mat-paginator>
+</div>
