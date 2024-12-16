@@ -1,0 +1,46 @@
+.satellite-card {
+    flex-direction: column;
+}
+
+.label-value {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+  
+.label {
+    color: #555;
+}
+  
+.value {
+    color: #000;
+    text-align: right;
+}
+
+.center-card {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.left-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 30%;
+}
+  
+.right-column {
+width: 65%;
+}
+
+.my-card {
+    display: flex;
+    flex-direction: column;
+}
+  
+.card-body {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}

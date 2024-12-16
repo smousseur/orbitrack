@@ -19,6 +19,7 @@ export class SearchTableComponent implements OnInit {
   pageSize = 10;
   currentPage = 0;
   searchQuery = '';
+  searchCosparId?: string;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   //@ViewChild(MatSort) sort!: MatSort;
 

@@ -36,10 +36,12 @@ export class CesiumViewerComponent {
     });
     let lastMultiplier = clock.multiplier;
     let lastClockTime = clock.currentTime.clone();
+    let firstTick = true;
+    let paused = false;
     let timeoutId: any = null;
     const that = this;
-    clock.onTick.addEventListener(() => {
-      const areComparableTime = JulianDate.equalsEpsilon(clock.currentTime, lastClockTime, 5);
+    clock.onTick.addEventListener(() => {      
+      const areComparableTime = JulianDate.equalsEpsilon(clock.currentTime, lastClockTime, 5 * clock.multiplier);
         if (clock.multiplier !== lastMultiplier || !areComparableTime) {
             timeoutId = setTimeout(() => {
                 if (clock.multiplier !== lastMultiplier) {
@@ -49,7 +51,14 @@ export class CesiumViewerComponent {
                   lastMultiplier = clock.multiplier;
                 }
             }, 500);
+        } else if (!firstTick && lastClockTime.equals(clock.currentTime)) {
+          that.positionService.close();
+          paused = true;
+        } else if (paused && !that.positionService.isOpened()) {
+          paused = false;
+          that.startPositionStream(that.objectId);
         }
+        firstTick = false;
         lastClockTime = clock.currentTime;
     });
   }

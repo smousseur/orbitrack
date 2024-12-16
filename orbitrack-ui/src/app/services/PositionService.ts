@@ -32,4 +32,8 @@ export class PositionService {
             this.eventSource.close();
         }
     }
+
+    isOpened(): boolean {
+      return this.eventSource && this.eventSource.readyState == this.eventSource.OPEN;
+    }
 }

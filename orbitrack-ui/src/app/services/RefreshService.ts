@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { GeoPosition } from './GeoPosition';
+import { Satellite } from './Satellite';
 
 @Injectable({ providedIn: 'root' })
 export class RefreshService<T> {
@@ -20,3 +21,6 @@ export class CesiumRefreshService extends RefreshService<number | undefined> {}
 
 @Injectable({ providedIn: 'root' })
 export class PositionRefreshService extends RefreshService<GeoPosition | undefined> {}
+
+@Injectable({ providedIn: 'root' })
+export class SatelliteRefreshService extends RefreshService<Satellite | undefined> {}

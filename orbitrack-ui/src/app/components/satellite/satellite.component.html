@@ -1,0 +1,59 @@
+<div *ngIf="show" class="center-card" >  
+    <mat-card class="satellite-card" appearance="outlined">
+        <mat-card-header>
+            <mat-card-title>{{ satelliteDetails.name }}</mat-card-title>
+            <mat-card-subtitle>{{ satelliteDetails.objectId }}</mat-card-subtitle>
+        </mat-card-header>
+        <div class="card-body">
+            <div class="left-column">
+                <img *ngIf="satelliteDetails.hasImage" mat-card-image 
+                    [src]="'/assets/images/' + satelliteDetails.objectId + '.jpg'" 
+                    alt="/assets/images/not_available.jpg" />
+            </div>
+            <div class="right-column">
+                <mat-card-content>
+                    <div class="label-value">
+                        <span class="label">Kind</span>
+                        <span class="value">{{ satelliteDetails.kind }}</span>
+                    </div>        
+                    <div class="label-value">
+                        <span class="label">Operator</span>
+                        <span class="value">{{ satelliteDetails.operator }}</span>
+                    </div>        
+                    <div class="label-value">
+                        <span class="label">Contractors</span>
+                        <span class="value">{{ satelliteDetails.contractors }}</span>
+                    </div>        
+                    <div class="label-value">
+                        <span class="label">Equipment</span>
+                        <span class="value">{{ satelliteDetails.equipment }}</span>
+                    </div>        
+                    <div class="label-value">
+                        <span class="label">Configuration</span>
+                        <span class="value">{{ satelliteDetails.configuration }}</span>
+                    </div>        
+                    <div class="label-value">
+                        <span class="label">Propulsion</span>
+                        <span class="value">{{ satelliteDetails.propulsion }}</span>
+                    </div>        
+                    <div class="label-value">
+                        <span class="label">Power</span>
+                        <span class="value">{{ satelliteDetails.power }}</span>
+                    </div>        
+                    <div class="label-value">
+                        <span class="label">Lifetime</span>
+                        <span class="value">{{ satelliteDetails.lifetime }}</span>
+                    </div>        
+                    <div class="label-value">
+                        <span class="label">Mass</span>
+                        <span class="value">{{ satelliteDetails.mass }}</span>
+                    </div>        
+                    <div class="label-value">
+                        <span class="label">Orbit</span>
+                        <span class="value">{{ satelliteDetails.orbit }}</span>
+                    </div>        
+                </mat-card-content>
+            </div>
+        </div>
+    </mat-card>
+</div>
