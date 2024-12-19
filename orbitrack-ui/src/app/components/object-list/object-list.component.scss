@@ -1,0 +1,21 @@
+.margin-bottom {
+    margin-bottom: 10px;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;    
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+  }
+  
+.grid-item {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    text-align: center;
+}

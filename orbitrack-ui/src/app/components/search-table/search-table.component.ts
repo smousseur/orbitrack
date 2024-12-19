@@ -1,10 +1,10 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { Object, SearchService } from '../../services/SearchService';
+import { Object, SearchService } from '../../services/search-service';
 import { MatInputModule } from '@angular/material/input';
-import { ObjectRefreshService } from '../../services/RefreshService';
+import { ObjectRefreshService } from '../../services/refresh-service';
 
 @Component({
   selector: 'app-search-table',
@@ -22,6 +22,8 @@ export class SearchTableComponent implements OnInit {
   searchCosparId?: string;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   //@ViewChild(MatSort) sort!: MatSort;
+
+  @Output() objectSelected = new EventEmitter<Object>();
 
   constructor(private searchService: SearchService, private refreshService: ObjectRefreshService) {}
 
@@ -48,7 +50,8 @@ export class SearchTableComponent implements OnInit {
     this.loadObjects();
   }
 
-  viewObject(row: Object): void {
+  selectObject(row: Object): void {
     this.refreshService.triggerRefresh(row.id);
+    this.objectSelected.emit(row);
   }
 }

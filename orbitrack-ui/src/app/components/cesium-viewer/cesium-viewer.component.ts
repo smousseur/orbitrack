@@ -1,9 +1,14 @@
-import { Component } from '@angular/core';
-import { createWorldTerrainAsync, Viewer, Cartesian3, Color, JulianDate, ClockViewModel, Clock, ScreenSpaceEventHandler, ScreenSpaceEventType, PolylineCollection, CallbackProperty, Entity, Ion } from 'cesium';
-import { PositionService } from '../../services/PositionService';
-import { CesiumRefreshService, PositionRefreshService } from '../../services/RefreshService';
-import { GeoPosition } from '../../services/GeoPosition';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { createWorldTerrainAsync, ScreenSpaceEventHandler, Viewer, Cartesian3, Color, Clock, Ion, ConstantPositionProperty, ScreenSpaceEventType, Cartesian2, ColorMaterialProperty } from 'cesium';
+import { PositionService } from '../../services/position-service';
+import { CesiumRefreshService, ObjectRefreshService, PositionRefreshService, SatelliteRefreshService } from '../../services/refresh-service';
+import { GeoPosition } from '../../services/geo-position';
 import { environment } from '../../../environments/environment';
+import { OrbitalBody } from './entites';
+import { CesiumClockHandler } from './cesium-clock-handler';
+import { Object } from '../../services/search-service';
+import { CesiumMouseHandler } from './cesium-mouse-handler';
+import { CesiumGraphicHandler } from './cesium-graphic-handler';
 
 @Component({
   selector: 'app-cesium-viewer',
@@ -11,119 +16,136 @@ import { environment } from '../../../environments/environment';
   styleUrl: './cesium-viewer.component.scss',
   host: {'class': 'cesium-viewer'}
 })
-export class CesiumViewerComponent {
+export class CesiumViewerComponent implements OnChanges {
   private viewer!: Viewer;
-  private entity: any;
-  private objectId!: number;
-  private trajectory: Array<Cartesian3> = [];
-  private maxTrajectoryPoints: number = 25000;
-  constructor(private positionService: PositionService, private cesiumRefreshService: CesiumRefreshService,
-    private positionRefreshService: PositionRefreshService) {}
+  private clock!: Clock;
+  private bodies = new Map<number, OrbitalBody>();
+  private cesiumClockHandler!: CesiumClockHandler;
+  private cesiumMouseHandler!: CesiumMouseHandler;
+  private cesiumGraphicHandler!: CesiumGraphicHandler;
+  private eventHandler!: ScreenSpaceEventHandler;
 
+  @Input() cesiumObjects: Object[] = [];
+
+  constructor(private positionService: PositionService, private cesiumRefreshService: CesiumRefreshService,
+    private positionRefreshService: PositionRefreshService, private satelliteRefreshService: SatelliteRefreshService,
+    private objectRefreshService: ObjectRefreshService) {}
 
   async ngAfterViewInit() {
     Ion.defaultAccessToken = environment.cesiumKey;
     this.viewer = new Viewer('cesiumContainer', {
       terrainProvider: await createWorldTerrainAsync(),
     });
-    const clock = this.viewer.clock;
-    clock.shouldAnimate = true;
-    this.cesiumRefreshService.refresh$.subscribe(objectId => {
-      if (objectId) {
-        this.objectId = objectId;
-        this.startPositionStream(objectId);
+    this.cesiumGraphicHandler = new CesiumGraphicHandler(this.viewer);
+//    this.viewer.selectionIndicator.viewModel.showSelection = false;
+    this.clock = this.viewer.clock;
+    this.clock.shouldAnimate = true;
+    this.cesiumClockHandler = new CesiumClockHandler(this.clock, this.viewer);
+    this.clock.onTick.addEventListener(() => {
+      this.cesiumClockHandler.handleClock(
+        () => this.restartStream(),
+        () => this.stopStream(),
+        () => this.startStream()
+      );
+    });
+    this.eventHandler = new ScreenSpaceEventHandler(this.viewer.scene.canvas);
+    this.cesiumMouseHandler = new CesiumMouseHandler(this.viewer, this.eventHandler, this.bodies);
+    this.cesiumMouseHandler.handleMouseMove(
+      (body, position) => {
+        if (body?.cesiumTrajectory.polyline) {
+          body.cesiumTrajectory.polyline.material = new ColorMaterialProperty(Color.YELLOW);
+        }
+      },
+      (body, position) => {
+        if (body?.cesiumTrajectory.polyline) {
+          body.cesiumTrajectory.polyline.material = new ColorMaterialProperty(Color.BLUE);
+        }
+      }
+    );
+    this.cesiumMouseHandler.handleMouseClick((body, position) => {
+      if (body) {
+        this.satelliteRefreshService.triggerRefresh({ objectId: body.id, name: body.body.cesiumEntity.name });
+        this.objectRefreshService.triggerRefresh(body.id);
       }
     });
-    let lastMultiplier = clock.multiplier;
-    let lastClockTime = clock.currentTime.clone();
-    let firstTick = true;
-    let paused = false;
-    let timeoutId: any = null;
-    const that = this;
-    clock.onTick.addEventListener(() => {      
-      const areComparableTime = JulianDate.equalsEpsilon(clock.currentTime, lastClockTime, 5 * clock.multiplier);
-        if (clock.multiplier !== lastMultiplier || !areComparableTime) {
-            timeoutId = setTimeout(() => {
-                if (clock.multiplier !== lastMultiplier) {
-                  if (that.objectId) {
-                    that.startPositionStream(that.objectId);
-                  }
-                  lastMultiplier = clock.multiplier;
-                }
-            }, 500);
-        } else if (!firstTick && lastClockTime.equals(clock.currentTime)) {
-          that.positionService.close();
-          paused = true;
-        } else if (paused && !that.positionService.isOpened()) {
-          paused = false;
-          that.startPositionStream(that.objectId);
+  }
+  
+  ngOnChanges(changes: SimpleChanges): void {
+    if (this.cesiumObjects.length > 0) {
+      const objsToDisplay = this.cesiumObjects.map(obj => obj.id);
+
+      for (const key of this.bodies.keys()) {
+        if (!objsToDisplay.includes(key)) {
+          this.removeBody(this.bodies.get(key), key);
         }
-        firstTick = false;
-        lastClockTime = clock.currentTime;
-    });
+      }
+      this.stopStream();
+      this.startEntitesStream(this.cesiumObjects.map(obj => obj.id));
+    } else {
+      this.clear();
+    }
   }
 
   ngOnDestroy(): void {
     this.clear();
   }
 
-  private startPositionStream(objectId: number) : void {
-    this.clear();
-    const that = this;
-    const currentTime = this.viewer.clock.currentTime;
-    let currentIsoTime: string = JulianDate.toIso8601(currentTime);
-    currentIsoTime = currentIsoTime.replace(/\.(\d{3})\d*/, '.$1').replace(/Z$/, '');
-    const speedClock = this.viewer.clock.multiplier;
-    this.positionService.getPositions(objectId, currentIsoTime, speedClock).subscribe({
+  private removeBody(body: OrbitalBody | undefined, key: number): void {  
+    if (body) {
+      this.viewer.entities.remove(body.cesiumEntity);
+      this.viewer.entities.remove(body.cesiumTrajectory);  
+    }
+    this.bodies.delete(key);
+  }
+
+  private startStream(): void {
+    if (!this.positionService.isOpened() && this.bodies.size > 0) {
+      this.startEntitesStream(Array.from(this.bodies.keys()));
+    }
+  }
+
+  private stopStream(): void {
+    this.positionService.close();
+  }
+
+  private restartStream(): void {
+    this.stopStream();
+    this.startStream();
+  }
+
+  private startEntitesStream(entityIds: number[]): void {
+    const speedClock = this.clock.multiplier;
+    const time = this.cesiumClockHandler.getIsoClockTime();
+    this.positionService.getMultiplePositions(entityIds, time, speedClock).subscribe({
       next: (position) => {
-        this.updateSatellitePosition(position, this);
+        this.updateEntity(position);
       },
       error: (error) => {
         console.error('Error fetching objet positions', error);
       }
     });
-    this.viewer.entities.add({
-      polyline: {
-        positions: new CallbackProperty(() => {
-          return that.trajectory;
-        }, false),
-      width: 1,
-      material: Color.BLUE
-      }
-    });
+  }
+  
+  private updateEntity(position: GeoPosition): void {
+    let body = this.bodies.get(position.objectId);
+    const cartesianPos = Cartesian3.fromDegrees(position.longitude, position.latitude, position.altitude);
+    const pos = new ConstantPositionProperty(cartesianPos);
+    if (body) {
+      body.cesiumEntity.position = pos;
+      body.addTrajectoryPoint(cartesianPos);
+    } else {
+      const entity = this.cesiumGraphicHandler.createPoint(position.objectName, cartesianPos, Color.RED, 10);
+      let trajectoryPoints: Array<Cartesian3> = [];
+      const trajectoryEntity = this.cesiumGraphicHandler.createPolyline(Color.BLUE, trajectoryPoints);
+      this.bodies.set(position.objectId, new OrbitalBody(entity, trajectoryEntity, trajectoryPoints));
+    }
   }
 
   private clear(): void {
-    this.entity = undefined;
-    this.viewer.entities.removeAll();
-    this.trajectory = [];
+    if (this.viewer) {
+      this.viewer.entities.removeAll();
+    }
+    this.bodies.clear();
     this.positionService.close();
-  }
-
-  private addObjectPoint(longitude: number, latitude: number, altitude: number): Entity {
-    return this.viewer.entities.add({
-      position: Cartesian3.fromDegrees(longitude, latitude, altitude),
-      point: {
-        pixelSize: 10,
-        color: Color.RED,
-        outlineColor:Color.BLACK,
-        outlineWidth: 2,
-      },
-    });
-  }
-
-  private updateSatellitePosition(position: GeoPosition, context: CesiumViewerComponent): void {
-    if (typeof context.entity === 'undefined') {
-      context.entity = context.addObjectPoint(position.longitude, position.latitude, position.altitude);
-    } else {
-      context.entity.position = Cartesian3.fromDegrees(position.longitude, position.latitude, position.altitude);
-    }
-    if (this.trajectory.length < this.maxTrajectoryPoints) {
-      this.trajectory.push(Cartesian3.fromDegrees(position.longitude, position.latitude, position.altitude));
-    } else {
-      this.trajectory.unshift(Cartesian3.fromDegrees(position.longitude, position.latitude, position.altitude));
-      this.trajectory.pop();
-    }
-    context.positionRefreshService.triggerRefresh(position);
   }
 }

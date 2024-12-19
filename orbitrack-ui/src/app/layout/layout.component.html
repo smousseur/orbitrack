@@ -6,21 +6,32 @@
 		<div class="col-span-3 bg-white rounded-lg shadow-md p-4">
 			<h2 class="text-xl font-semibold text-gray-700 mb-4">Catalog</h2>
 			<div class="mb-4">
-				<app-search-table></app-search-table>
+				<app-search-table (objectSelected)="addObject($event)"></app-search-table>
 			</div>
 		</div>
 		<div class="col-span-5 bg-white rounded-lg shadow-md p-4">
 			<div class="h-96 bg-blue-50 rounded-lg flex">
-				<app-cesium-viewer></app-cesium-viewer>
+				<app-cesium-viewer
+					[cesiumObjects]="objectsToDisplay"
+				>
+				</app-cesium-viewer>
 			</div>
 				<app-infos></app-infos>
+				<app-satellite></app-satellite>
 		</div>
 		<div class="col-span-2 bg-white rounded-lg shadow-md p-4">
 			<h2 class="text-xl font-semibold text-gray-700 mb-4">Details</h2>
 			<app-details></app-details>
+			<div class="mb-4">
+				<app-object-list
+					[objectSelected]="selectedObjects"
+					(removeObject)="removeObject($event)"
+					(cesiumUpdate)="cesiumUpdate($event)"
+				>
+				</app-object-list>
+			</div>
 		</div>
 	</div>
 	<div>
-		<app-satellite></app-satellite>
 	</div>
 </div>

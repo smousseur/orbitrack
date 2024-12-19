@@ -3,10 +3,10 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { SearchResult, SimpleSearchService } from '../../services/SimpleSearchService';
+import { SearchResult, SimpleSearchService } from '../../services/simple-search-service';
 import { debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { ObjectRefreshService } from '../../services/RefreshService';
+import { ObjectRefreshService } from '../../services/refresh-service';
 
 @Component({
   selector: 'app-search',

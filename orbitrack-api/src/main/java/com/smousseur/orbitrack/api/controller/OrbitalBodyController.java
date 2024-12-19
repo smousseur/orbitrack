@@ -6,6 +6,7 @@ import com.smousseur.orbitrack.api.service.OrbitalBodyService;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -43,6 +44,19 @@ public class OrbitalBodyController {
     return service.findByName(name).take(limit);
   }
 
+  @GetMapping(value = "/api/objects/position/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  public Flux<GeoPosition> getObjectsPositionStream(
+      @RequestParam("ids") String objectIds,
+      @RequestParam("time") String time,
+      @RequestParam("speed") Double speedClock) {
+    LocalDateTime startFluxTime = LocalDateTime.parse(time);
+    LocalDateTime startFluxRealtime = LocalDateTime.now(ZoneOffset.UTC);
+    return Flux.interval(Duration.ofMillis(30))
+        .flatMapIterable(tick -> Arrays.stream(objectIds.split(",")).map(Integer::valueOf).toList())
+        .flatMap(service::findById)
+        .map(obj -> service.getObjectPosition(obj, startFluxRealtime, startFluxTime, speedClock));
+  }
+
   @GetMapping(
       value = "/api/objects/{objectId}/position/stream",
       produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -53,8 +67,7 @@ public class OrbitalBodyController {
     LocalDateTime startFluxTime = LocalDateTime.parse(time);
     LocalDateTime startFluxRealtime = LocalDateTime.now(ZoneOffset.UTC);
     return Flux.interval(Duration.ofMillis(33))
-        .map(tick -> service.findById(objectId))
-        .flatMap(Mono::flux)
+        .flatMap(tick -> service.findById(objectId))
         .map(obj -> service.getObjectPosition(obj, startFluxRealtime, startFluxTime, speedClock));
   }
 }

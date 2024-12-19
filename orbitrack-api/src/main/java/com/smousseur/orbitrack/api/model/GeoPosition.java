@@ -8,6 +8,8 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class GeoPosition {
+  private Integer objectId;
+  private String objectName;
   private double latitude;
   private double longitude;
   private double altitude;

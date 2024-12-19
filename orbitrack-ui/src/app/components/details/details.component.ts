@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { ObjectRefreshService, CesiumRefreshService, PositionRefreshService, SatelliteRefreshService } from '../../services/RefreshService';
-import { ObjectDetails, SimpleSearchService } from '../../services/SimpleSearchService';
-import { SatelliteDetails } from '../../services/SatelliteService';
+import { ObjectRefreshService, CesiumRefreshService, PositionRefreshService, SatelliteRefreshService } from '../../services/refresh-service';
+import { ObjectDetails, SimpleSearchService } from '../../services/simple-search-service';
+import { SatelliteDetails } from '../../services/satellite-service';
 
 @Component({
   selector: 'app-details',
@@ -20,6 +20,7 @@ export class DetailsComponent {
       if (objectId) {
         this.searchService.getDetails(objectId).subscribe(details => {
           this.update(details);
+          this.satelliteRefreshService.triggerRefresh({objectId: details.id, name: details.name});
         });
       }
     })

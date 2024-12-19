@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Satellite } from './Satellite';
+import { Satellite } from './satellite';
 
 export interface SatelliteDetails {
     id?: number;

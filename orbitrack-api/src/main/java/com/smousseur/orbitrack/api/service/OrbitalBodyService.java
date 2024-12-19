@@ -49,6 +49,8 @@ public class OrbitalBodyService {
         orekitService.computePosition(telemetry.tle1(), telemetry.tle2(), currentTime);
     GeoPosition geoPosition =
         GeoPosition.builder()
+            .objectId(object.id())
+            .objectName(object.name())
             .latitude(FastMath.toDegrees(geodeticPoint.getLatitude()))
             .longitude(FastMath.toDegrees(geodeticPoint.getLongitude()))
             .altitude(geodeticPoint.getAltitude())

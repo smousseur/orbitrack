@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { SatelliteDetails, SatelliteService } from '../../services/SatelliteService';
-import { ObjectRefreshService, SatelliteRefreshService } from '../../services/RefreshService';
+import { SatelliteDetails, SatelliteService } from '../../services/satellite-service';
+import { ObjectRefreshService, SatelliteRefreshService } from '../../services/refresh-service';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -27,8 +27,6 @@ export class SatelliteComponent implements OnInit {
           if (satelliteDetails) {
             this.show = true;
             this.satelliteDetails = satelliteDetails;
-          } else {
-            this.show = false;
           }
         });
       }

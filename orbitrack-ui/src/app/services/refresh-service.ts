@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { GeoPosition } from './GeoPosition';
-import { Satellite } from './Satellite';
+import { GeoPosition } from './geo-position';
+import { Satellite } from './satellite';
 
 @Injectable({ providedIn: 'root' })
 export class RefreshService<T> {

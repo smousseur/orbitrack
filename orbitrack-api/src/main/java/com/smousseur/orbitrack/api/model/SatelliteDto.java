@@ -35,7 +35,7 @@ public class SatelliteDto {
         .power(satellite.getPower())
         .lifetime(satellite.getLifetime())
         .mass(satellite.getMass())
-        .orbit(satellite.getOrbit())
+        .orbit(satellite.getOrbit() != null ? satellite.getOrbit().split(";")[0] : null)
         .hasImage(satellite.getHasImage())
         .build();
   }

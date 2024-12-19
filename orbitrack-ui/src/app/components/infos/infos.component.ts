@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { PositionRefreshService } from '../../services/RefreshService';
+import { PositionRefreshService } from '../../services/refresh-service';
 
 @Component({
   selector: 'app-infos',
