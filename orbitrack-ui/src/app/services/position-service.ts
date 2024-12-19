@@ -16,32 +16,16 @@ export class PositionService {
       return new Observable<GeoPosition>((observer) => {
         this.eventSource.onmessage = (event) => {
         observer.next(JSON.parse(event.data));
-      };
+        };
 
-      this.eventSource.onerror = (error) => {
-        observer.error(error);
-      };
+        this.eventSource.onerror = (error) => {
+          observer.error(error);
+        };
 
-      this.eventSource.onopen = () => {
-        console.log('Multi stream opened');
-      };
-    });
-}
-    getPositions(objectId: number, time: string, speedClock: number): Observable<GeoPosition> {
-        this.eventSource = new EventSource(`${this.apiUrl}/${objectId}/position/stream?time=${time}&speed=${speedClock}`);
-        return new Observable<GeoPosition>((observer) => {
-            this.eventSource.onmessage = (event) => {
-            observer.next(JSON.parse(event.data));
-          };
-
-          this.eventSource.onerror = (error) => {
-            observer.error(error);
-          };
-
-          this.eventSource.onopen = () => {
-            console.log('Stream opened');
-          };
-        });
+        this.eventSource.onopen = () => {
+          console.log('Multi stream opened');
+        };
+      });
     }
 
     close(): void {

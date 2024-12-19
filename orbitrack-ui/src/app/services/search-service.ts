@@ -31,15 +31,6 @@ export class SearchService {
             .set('name', query)
             .set('page', page)
             .set('size', size);
-/*            
-        if (cosparId) {
-            params = params.set('cosparId', cosparId);
-        }
-*/            
- //       if (noradId) {
- //           params = params.set('noradId', noradId);
- //       }
-
         return this.http.get<PageResponse<Object>>(this.searchUrl, { params });
     }
 }

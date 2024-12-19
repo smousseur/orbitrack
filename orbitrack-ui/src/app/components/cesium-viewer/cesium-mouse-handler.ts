@@ -5,7 +5,8 @@ export class CesiumMouseHandler {
     private eventHandler: ScreenSpaceEventHandler;
     private bodies: Map<number, OrbitalBody>;
     private viewer: Viewer;
-    private selectedBody?: OrbitalBody;
+    overBody?: OrbitalBody;
+    selectedBody?: OrbitalBody;
 
     constructor(viewer: Viewer, eventHandler: ScreenSpaceEventHandler, bodies: Map<number, OrbitalBody>) {
         this.viewer = viewer;
@@ -19,10 +20,10 @@ export class CesiumMouseHandler {
             const position = movement.endPosition;
             const pickedObject = this.viewer.scene.pick(position);
             if (pickedObject) {
-                this.selectedBody = this.getBody(pickedObject);
-                mouseOver(this.selectedBody, position);
+                this.overBody = this.getBody(pickedObject);
+                mouseOver(this.overBody, position);
             } else {
-                mouseOut(this.selectedBody, position);
+                mouseOut(this.overBody, position);
             }
         }, ScreenSpaceEventType.MOUSE_MOVE);
     }

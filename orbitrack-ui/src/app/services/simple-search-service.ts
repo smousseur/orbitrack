@@ -28,8 +28,10 @@ interface Telemetry {
     period?: number;
     eccentricity?: number;
     inclination?: number;
-
+    apoapsis?: number;
+    periapsis?: number;
 }
+
 export interface ObjectDetails {
     id?: number;
     name?: string;

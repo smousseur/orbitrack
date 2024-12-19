@@ -56,18 +56,4 @@ public class OrbitalBodyController {
         .flatMap(service::findById)
         .map(obj -> service.getObjectPosition(obj, startFluxRealtime, startFluxTime, speedClock));
   }
-
-  @GetMapping(
-      value = "/api/objects/{objectId}/position/stream",
-      produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-  public Flux<GeoPosition> getObjectPositionStream(
-      @PathVariable("objectId") Integer objectId,
-      @RequestParam("time") String time,
-      @RequestParam("speed") Double speedClock) {
-    LocalDateTime startFluxTime = LocalDateTime.parse(time);
-    LocalDateTime startFluxRealtime = LocalDateTime.now(ZoneOffset.UTC);
-    return Flux.interval(Duration.ofMillis(33))
-        .flatMap(tick -> service.findById(objectId))
-        .map(obj -> service.getObjectPosition(obj, startFluxRealtime, startFluxTime, speedClock));
-  }
 }

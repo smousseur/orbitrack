@@ -1,26 +1,36 @@
-<div class="space-y-3">
-    <div>
-        <p class="text-gray-500">Name</p>
-        <p class="font-bold">{{ details.name }}</p>
-    </div>
-    <div>
-        <p class="text-gray-500">Norad ID</p>
-        <p class="font-bold">{{ details.noradId }}</p>
-    </div>
-    <div>
-        <p class="text-gray-500">Type</p>
-        <p class="font-bold">{{ details.type }}</p>
-    </div>
-    <div>
-        <p class="text-gray-500">Period</p>
-        <p class="font-bold">{{ details.telemetry?.period }}</p>
-    </div>
-    <div>
-        <p class="text-gray-500">Eccentricity</p>
-        <p class="font-bold">{{ details.telemetry?.eccentricity }}</p>
-    </div>
-    <div>
-        <p class="text-gray-500">Inclination</p>
-        <p class="font-bold">{{ details.telemetry?.inclination }}</p>
-    </div>
+<div *ngIf="show">  
+    <mat-card class="details-card">
+        <mat-card-header>
+            <mat-card-title>{{ details.name }}</mat-card-title>
+            <mat-card-subtitle>Norad Id: {{ details.noradId }}</mat-card-subtitle>
+        </mat-card-header>
+        <div class="card-body">
+            <mat-card-content class="max-width">
+                <div class="label-value">
+                    <span class="label left-column">Type</span>
+                    <span class="value right-column">{{ details.type }}</span>
+                </div>        
+                <div class="label-value">
+                    <span class="label">Period</span>
+                    <span class="value">{{ details.telemetry?.period }} min</span>
+                </div>        
+                <div class="label-value">
+                    <span class="label">Eccentricity</span>
+                    <span class="value">{{ details.telemetry?.eccentricity }}</span>
+                </div>        
+                <div class="label-value">
+                    <span class="label">Inclination</span>
+                    <span class="value">{{ details.telemetry?.inclination }}°</span>
+                </div>        
+                <div class="label-value">
+                    <span class="label">Apoapsis</span>
+                    <span class="value">{{ details.telemetry?.apoapsis }} km</span>
+                </div>        
+                <div class="label-value">
+                    <span class="label">Periapsis</span>
+                    <span class="value">{{ details.telemetry?.periapsis }} km</span>
+                </div>        
+            </mat-card-content>
+        </div>
+    </mat-card>
 </div>

@@ -66,6 +66,7 @@ export class CesiumViewerComponent implements OnChanges {
       if (body) {
         this.satelliteRefreshService.triggerRefresh({ objectId: body.id, name: body.body.cesiumEntity.name });
         this.objectRefreshService.triggerRefresh(body.id);
+        this.positionRefreshService.triggerRefresh(body.body.position);
       }
     });
   }
@@ -130,14 +131,16 @@ export class CesiumViewerComponent implements OnChanges {
     let body = this.bodies.get(position.objectId);
     const cartesianPos = Cartesian3.fromDegrees(position.longitude, position.latitude, position.altitude);
     const pos = new ConstantPositionProperty(cartesianPos);
+    this.positionRefreshService.triggerRefresh(this.cesiumMouseHandler.selectedBody?.position);
     if (body) {
       body.cesiumEntity.position = pos;
+      body.position = position;
       body.addTrajectoryPoint(cartesianPos);
     } else {
       const entity = this.cesiumGraphicHandler.createPoint(position.objectName, cartesianPos, Color.RED, 10);
       let trajectoryPoints: Array<Cartesian3> = [];
       const trajectoryEntity = this.cesiumGraphicHandler.createPolyline(Color.BLUE, trajectoryPoints);
-      this.bodies.set(position.objectId, new OrbitalBody(entity, trajectoryEntity, trajectoryPoints));
+      this.bodies.set(position.objectId, new OrbitalBody(entity, trajectoryEntity, trajectoryPoints, position));
     }
   }
 

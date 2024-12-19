@@ -23,7 +23,7 @@ public class OrbitalBodySearchService {
       int size) {
     int offset = page * size;
 
-    String likeName = getLikeValue(name);
+    String likeName = "%" + name + "%";
     Flux<OrbitalBodySearchResponse> search =
         repository.search(noradId, likeName, cosparId, type, countryCode, size, offset);
     Mono<Integer> count = repository.count(noradId, likeName, cosparId, type, countryCode);
@@ -31,9 +31,5 @@ public class OrbitalBodySearchService {
     return count
         .zipWith(search.collectList())
         .map(tuple -> new PageResult<>(tuple.getT2(), tuple.getT1()));
-  }
-
-  private static String getLikeValue(String value) {
-    return "%" + value + "%";
   }
 }

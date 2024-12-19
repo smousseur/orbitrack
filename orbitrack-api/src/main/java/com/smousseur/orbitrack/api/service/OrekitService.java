@@ -3,6 +3,8 @@ package com.smousseur.orbitrack.api.service;
 import jakarta.annotation.PostConstruct;
 import java.time.Instant;
 import lombok.Getter;
+import org.graalvm.collections.Pair;
+import org.hipparchus.geometry.euclidean.threed.Vector3D;
 import org.orekit.bodies.GeodeticPoint;
 import org.orekit.data.DataContext;
 import org.orekit.data.DataProvidersManager;
@@ -34,12 +36,16 @@ public class OrekitService {
             FramesFactory.getITRF(ITRFVersion.ITRF_2020, IERSConventions.IERS_2010, true));
   }
 
-  public GeodeticPoint computePosition(String tle1, String tle2, Instant atTime) {
+  public Pair<GeodeticPoint, Double> computePosition(String tle1, String tle2, Instant atTime) {
     TLE tle = new TLE(tle1, tle2);
     TLEPropagator propagator = TLEPropagator.selectExtrapolator(tle);
     AbsoluteDate date = new AbsoluteDate(atTime);
     PVCoordinates pvCoordinates = propagator.getPVCoordinates(date, FramesFactory.getTEME());
-    return earthModelForPositions.transform(
-        pvCoordinates.getPosition(), FramesFactory.getTEME(), date);
+    GeodeticPoint point =
+        earthModelForPositions.transform(
+            pvCoordinates.getPosition(), FramesFactory.getTEME(), date);
+    Vector3D velocity = pvCoordinates.getVelocity();
+    double speed = Math.sqrt(velocity.getX() * velocity.getX() + velocity.getY() * velocity.getY());
+    return Pair.create(point, speed);
   }
 }
